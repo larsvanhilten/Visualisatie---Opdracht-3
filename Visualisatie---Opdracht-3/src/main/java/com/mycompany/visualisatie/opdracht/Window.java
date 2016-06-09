@@ -5,6 +5,7 @@
  */
 package com.mycompany.visualisatie.opdracht;
 
+import java.sql.ResultSet;
 import processing.core.PApplet;
 
 /**
@@ -12,20 +13,24 @@ import processing.core.PApplet;
  * @author Lars
  */
 public class Window extends PApplet {
-    
-    public Window(){
+
+    private DataDrawer dataDrawer;
+    private ResultSet data;
+
+    @Override
+    public void setup() {
+        size(800, 500);
+
+        Database database = new Database();
+        dataDrawer = new DataDrawer(this);
         
+        data = database.readData("ROTTERDAM_OOST", 6);
+        
+
     }
-    
-    public void setup(){
-    size(800,500);
-    
-    Database database = new Database();
-    
-    }
-    
-    public void draw(){
-    
-    
+
+    @Override
+    public void draw() {
+        dataDrawer.drawData(data);
     }
 }

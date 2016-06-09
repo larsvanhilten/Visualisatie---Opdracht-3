@@ -15,14 +15,13 @@ import java.util.logging.Logger;
  */
 public class Database {
 
-    Connection connection;
+    private Connection connection;
 
     public Database() {
-        createDatabase();
-        createTable();
+        connectToDatabase();
     }
 
-    private void createDatabase() {
+    private void connectToDatabase() {
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:coordinates.db");
@@ -34,21 +33,20 @@ public class Database {
 
     }
 
-    private void createTable(String tablename) {
-
+    public ResultSet readData(String tablename, int nRow) {
+        ResultSet results = null;
         try {
-            Statement stmt = connection.createStatement();
-            String sql = "CREATE TABLE ROTTERAM_WEST"
-                    + "(ID INT PRIMARY KEY     NOT NULL,"
-                    + " X           DOUBLE    NOT NULL, "
-                    + " Y            DOUBLE     NOT NULL, "
-                    + " Z        DOUBLE     NOT NULL)";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            connection.close();
+            String sql = "SELECT X, Y,Z FROM " + tablename + " WHERE ID%? = 0 ORDER BY ID";
+            PreparedStatement stat = connection.prepareStatement(sql);
+            stat.setInt(1, nRow);
+
+            results = stat.executeQuery();
+
         } catch (SQLException ex) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        return results;
 
     }
 
