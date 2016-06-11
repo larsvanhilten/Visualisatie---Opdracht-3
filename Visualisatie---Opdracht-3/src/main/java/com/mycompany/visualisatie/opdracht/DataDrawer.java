@@ -24,7 +24,11 @@ public class DataDrawer {
     private final PApplet applet;
     private static float waterLevel = 0;
 
-    private PImage play, pause, stop, reset;
+    public static float getWaterLevel() {
+        return waterLevel;
+    }
+
+    private PImage play, pause, stop, reset, screenshot;
     private Timer timer;
     private boolean timerActive = false;
 
@@ -35,13 +39,14 @@ public class DataDrawer {
         pause = applet.loadImage("pause.png");
         stop = applet.loadImage("stop.png");
         reset = applet.loadImage("reset.png");
+        screenshot = applet.loadImage("screenshot.png");
     }
 
     public static void setWaterLevel(int hoursPassed) {
         waterLevel = 0.5f * hoursPassed;
     }
 
-    public void drawRotterdam(ResultSet data) {
+    public boolean drawRotterdam(ResultSet data) {
 
         try {
             for (int i = 0; i < 15000; i++) {
@@ -52,17 +57,20 @@ public class DataDrawer {
 
                     applet.stroke(0, mapColor, altColor);
                     applet.point(mappedData[0], mappedData[1]);
+                } else {
+                    return true;
                 }
             }
 
         } catch (SQLException ex) {
             Logger.getLogger(DataDrawer.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return false;
     }
 
-    public void drawWijnhaven(ResultSet data) {
+    public boolean drawWijnhaven(ResultSet data) {
         try {
-            for (int i = 0; i < 15000; i++) {
+            for (int i = 0; i < 5000; i++) {
                 if (data.next()) {
                     int[] mappedData = mapData(data.getDouble("x"), data.getDouble("y"), new float[]{92858 - 250, 92858 + 250}, new float[]{436940 - 250, 436940 + 250});
                     int mapColor = mapHeight(data.getDouble("z") - waterLevel);
@@ -71,12 +79,15 @@ public class DataDrawer {
                     applet.stroke(0, mapColor, altColor);
                     applet.fill(0, mapColor, altColor);
                     applet.ellipse(mappedData[0], mappedData[1], 4, 4);
+                } else {
+                    return true;
                 }
             }
 
         } catch (SQLException ex) {
             Logger.getLogger(DataDrawer.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return false;
     }
 
     private int[] mapData(double x, double y, float[] minMaxX, float[] minMaxY) {
@@ -106,39 +117,53 @@ public class DataDrawer {
         applet.image(pause, 230, 10);
         applet.image(stop, 260, 10);
         applet.image(reset, 290, 10);
+        applet.image(screenshot, 320, 10);
 
     }
 
     public void startWaterLevel() {
-        if(!timerActive){
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                waterLevel += 0.5f;
-                timerActive = true;
-                System.out.println(waterLevel);
-            }
-        }, 1000, 1000);
+        if (!timerActive) {
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    waterLevel += 0.5f;
+                    timerActive = true;
+                }
+            }, 1000, 1000);
         }
     }
 
     public void pauseWaterLevel() {
-        timer.cancel();
+        if (timerActive) {
+            timer.cancel();
+            timerActive = false;
+        }
+
     }
 
     public void stopWaterLevel() {
-        timer.cancel();
-        waterLevel = 0;
+        if (timerActive) {
+            timer.cancel();
+            waterLevel = 0;
+            timerActive = false;
+        } else {
+            waterLevel = 0;
+        }
     }
 
     public void resetWaterLevel() {
-        timer.cancel();
-        waterLevel = 0;
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                waterLevel = +0.5f;
-            }
-        }, 1000, 1000);
+        if (timerActive) {
+            timer.cancel();
+            waterLevel = 0;
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    waterLevel = +0.5f;
+                }
+            }, 1000, 1000);
+        }
+
     }
 }

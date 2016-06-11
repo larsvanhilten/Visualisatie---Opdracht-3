@@ -30,13 +30,11 @@ public class Window extends PApplet {
         size(1200, 800);
         database = new Database();
         dataDrawer = new DataDrawer(this);
-
         data = database.readRotterdam(6);
         noSmooth();
 
     }
 
- 
     @Override
     public void draw() {
         if (oldJob != drawJob) {
@@ -52,17 +50,28 @@ public class Window extends PApplet {
         }
         switch (drawJob) {
             case 1:
-                dataDrawer.drawRotterdam(data);
+                boolean rDone = dataDrawer.drawRotterdam(data);
+                if (rDone) {
+                    data = database.readRotterdam(6);
+                }
                 oldJob = 1;
                 break;
             case 2:
-                dataDrawer.drawWijnhaven(data);
+                boolean wDone = dataDrawer.drawWijnhaven(data);
+                if (wDone) {
+                    data = database.readWijnhaven(1);
+                }
                 oldJob = 2;
                 break;
 
         }
+
+        fill(255);
+        stroke(0);
+        rect(20, 5, 330, 30);
         dataDrawer.drawWaterLevel();
         dataDrawer.drawButtons();
+
     }
 
     @Override
@@ -89,6 +98,12 @@ public class Window extends PApplet {
         if (mouseX > 290 && mouseX < 320) {
             if (mouseY > 10 && mouseY < 40) {
                 dataDrawer.resetWaterLevel();
+            }
+        }
+
+        if (mouseX > 320 && mouseX < 345) {
+            if (mouseY > 10 && mouseY < 40) {
+                saveFrame("#########-screenshot.jpg");
             }
         }
     }
