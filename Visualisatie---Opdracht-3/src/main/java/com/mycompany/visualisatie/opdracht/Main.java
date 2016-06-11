@@ -5,6 +5,7 @@
  */
 package com.mycompany.visualisatie.opdracht;
 
+
 /**
  *
  * @author Lars
@@ -13,5 +14,7 @@ public class Main {
     
     public static void main(String[] args){
         Window.main("com.mycompany.visualisatie.opdracht.Window");
+        InputManager inputManager = new InputManager();
+        inputManager.manageInput();
     }
 }

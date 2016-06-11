@@ -33,10 +33,10 @@ public class Database {
 
     }
 
-    public ResultSet readData(String tablename, int nRow) {
+    public ResultSet readRotterdam(int nRow) {
         ResultSet results = null;
         try {
-            String sql = "SELECT X, Y,Z FROM " + tablename + " WHERE ID%? = 0 ORDER BY ID";
+            String sql = "SELECT * FROM ROTTERDAM WHERE rowid % ? = 0";
             PreparedStatement stat = connection.prepareStatement(sql);
             stat.setInt(1, nRow);
 
@@ -48,6 +48,33 @@ public class Database {
 
         return results;
 
+    }
+
+    public ResultSet readWijnhaven(int nRow) {
+        ResultSet results = null;
+        
+        int RDX = 92858;
+        int RDY = 436940;
+        int range = 250;
+        
+        try {
+            String sql = "SELECT * FROM ROTTERDAM WHERE rowid % ? = 0 AND x BETWEEN ? AND ? AND y BETWEEN ? AND ?";
+            PreparedStatement stat = connection.prepareStatement(sql);
+            stat.setInt(1, nRow);
+            
+            stat.setInt(2, RDX - range);
+            stat.setInt(3, RDX + range);
+            
+            stat.setInt(4, RDY - range);
+            stat.setInt(5, RDY + range);
+
+            results = stat.executeQuery();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return results;
     }
 
 }
